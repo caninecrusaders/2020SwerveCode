@@ -8,8 +8,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import frc.robot.commands.cmdHolonomicDrive;
 import frc.robot.input.JoystickX3D;
 import frc.robot.input.XboxController;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -21,13 +23,23 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  public JoystickX3D joystickDriver = new JoystickX3D(0);
+  public XboxController xboxDriver = new XboxController(1);
 
+  private final SwerveDriveSubsystem swerveDriveSubsystem = new SwerveDriveSubsystem();
+
+  private final cmdHolonomicDrive mCmdHolonomicDrive = new cmdHolonomicDrive(swerveDriveSubsystem,joystickDriver);
+  
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
   
-  public XboxController xboxDriver = new XboxController(1);
-  public JoystickX3D joystickDriver = new JoystickX3D(0);
+  public JoystickX3D getJoystick() {
+    return joystickDriver;
+  }
 
-
+  public XboxController getXboxDriver() {
+    return xboxDriver;
+  }
+  
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
