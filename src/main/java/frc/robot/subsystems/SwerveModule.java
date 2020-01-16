@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -17,7 +18,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveModule extends PIDSubsystem{
 
@@ -73,16 +73,12 @@ public class SwerveModule extends PIDSubsystem{
     // This method will be called once per scheduler run
   }
 
-  @Override
-  protected void useOutput(double output, double setpoint) {
-    // TODO Auto-generated method stub
-    
-  }
+  
 
   @Override
   public double getMeasurement() {
     // Retyrn the process variable measurment here
-    return 0;
+    return mEncoder.getAverageVoltage();
   }
 
   public void angleMotorPIDController() {
@@ -121,6 +117,129 @@ public class SwerveModule extends PIDSubsystem{
 
   public int getModuleNumber() {
     return mModuleNumber;
+  }
+
+  private double angleToVoltage(double angle) {
+    return angle * ((maxVoltage - minVoltage) / 360.0);
+  }
+
+  private double voltageToAngle(double voltage) {
+    return (voltage * (360.0 / (maxVoltage - minVoltage))) % 360.0;
+  }
+
+  public void setDriveInverted(boolean inverted) {
+    driveInverted = inverted;
+  }
+
+
+  public void saveZeroOffset() {
+    mZeroOffset = voltageToAngle(mEncoder.getAverageVoltage());
+    String key = String.format("ZeroOffset%d", getModuleNumber());
+    Preferences.getInstance().putDouble(key, mZeroOffset);
+    SmartDashboard.putNumber(key, mZeroOffset);
+  }
+
+  public void setTargetAngle(double targetAngle) {
+
+    lastTargetAngle = targetAngle;
+
+    SmartDashboard.putNumber("Module Target Angle " + mModuleNumber, targetAngle % 360);
+    SmartDashboard.putNumber("EncoderVoltage" + mModuleNumber, mEncoder.getVoltage());
+
+    targetAngle += mZeroOffset; // ddebug
+    targetAngle %= 360;
+
+    // double currentAngle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 /
+    // 1024.0);
+    double currentAngle = voltageToAngle(mEncoder.getAverageVoltage());
+    double currentAngleMod = currentAngle % 360;
+    if (currentAngleMod < 0)
+      currentAngleMod += 360;
+
+    double delta = currentAngleMod - targetAngle;
+
+    if (delta > 180) {
+      targetAngle += 360;
+    } else if (delta < -180) {
+      targetAngle -= 360;
+    }
+
+    delta = currentAngleMod - targetAngle;
+    if (delta > 90 || delta < -90) {
+      if (delta > 90)
+        targetAngle += 180;
+      else if (delta < -90)
+        targetAngle -= 180;
+      mDriveMotor.setInverted(false);
+    } else {
+      mDriveMotor.setInverted(true);
+    }
+
+    targetAngle += currentAngle - currentAngleMod;
+    SmartDashboard.putNumber("targetAngle" + mModuleNumber, targetAngle);
+
+    // targetAngle *= 1024.0 / 360.0;
+    targetAngle = angleToVoltage(targetAngle);
+    SmartDashboard.putNumber("targetVoltage" + mModuleNumber, targetAngle);
+
+    pidAngle.setSetpoint(targetAngle); // ddebug set back to targetAngle
+  }
+
+  public void setTargetSpeed(double speed) {
+    if (driveInverted) {
+      speed = -speed;
+    }
+    pidDrive.setReference(speed, ControlType.kDutyCycle);
+  }
+
+  public void setDriveGearRatio(double ratio) {
+    driveGearRatio = ratio;
+  }
+
+  public double getDriveWheelRadius() {
+    return driveWheelRadius;
+  }
+
+  public void setDriveWheelRadius(double radius) {
+    driveWheelRadius = radius;
+  }
+
+  public double getTargetAngle() {
+    return lastTargetAngle;
+  }
+
+  public void resetMotor() {
+    angleMotorJam = false;
+    mStallTimeBegin = Long.MAX_VALUE;
+    SmartDashboard.putBoolean("Motor Jammed" + mModuleNumber, angleMotorJam);
+  }
+
+  public void setMotionConstraints(double maxAcceleration, double maxVelocity) {
+    // need to set max acceleration and max velocity in the sparks
+  }
+
+  public void testDriveMotor(double speed) {
+    mDriveMotor.set(speed);
+  }
+
+  public void testRotationMotor(double speed) {
+    mAngleMotor.set(speed);
+  }
+
+  @Override
+  protected void useOutput(double output, double setpoint) {
+    // TODO Auto-generated method stub
+    if (!enableAngle) {
+      mAngleMotor.set(0);
+      return;
+    }
+    if (!pidAngle.atSetpoint() && enableAngle) {
+      mAngleMotor.set(-output);
+    } else {
+      mAngleMotor.set(0);
+    }
+
+    SmartDashboard.putNumber("Output" + mModuleNumber, output);
   }
 
 

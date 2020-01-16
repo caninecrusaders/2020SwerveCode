@@ -58,7 +58,7 @@ public class cmdHolonomicDrive extends CommandBase {
     SmartDashboard.putNumber("Strafe", strafe);
     SmartDashboard.putNumber("Rotation", rotation);
 
-    swerveDriveSubsystem.holonomicDrive(forward, strafe, rotation);
+    swerveDriveSubsystem.holonomicDrive(forward, strafe, rotation, true);
   }
 
   // Called once the command ends or is interrupted.
