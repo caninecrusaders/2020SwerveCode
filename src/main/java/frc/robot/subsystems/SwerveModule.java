@@ -55,13 +55,15 @@ public class SwerveModule extends PIDSubsystem{
    * Creates a new SwerveModule.
    */
   public SwerveModule(int moduleNumber, int angleMotorID, int driveMotorID, int encoderID) {
+    
     super(new PIDController(0.5, 0.0, 0.02));
-
+    
     mModuleNumber = moduleNumber;
     getZeroOffset();
     mAngleMotor = new CANSparkMax(angleMotorID, MotorType.kBrushless);
     mDriveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
     mEncoder = new AnalogInput(encoderID);
+    pidAngle = this.getController();
     pidDrive = mDriveMotor.getPIDController();
     angleMotorPIDController();
 

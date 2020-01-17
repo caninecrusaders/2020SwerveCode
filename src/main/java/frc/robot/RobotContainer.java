@@ -22,29 +22,41 @@ import edu.wpi.first.wpilibj2.command.Command;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  
+  public JoystickX3D joystickDriver;
+  public XboxController xboxDriver;
+
+  private final SwerveDriveSubsystem swerveDriveSubsystem;
+  
+  private final cmdHolonomicDrive mCmdHolonomicDrive;
+  
   // The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  public JoystickX3D joystickDriver = new JoystickX3D(0);
-  public XboxController xboxDriver = new XboxController(1);
-
-  private final SwerveDriveSubsystem swerveDriveSubsystem = new SwerveDriveSubsystem();
-  
-  private final cmdHolonomicDrive mCmdHolonomicDrive = new cmdHolonomicDrive(swerveDriveSubsystem, joystickDriver);
-  
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
   
   public JoystickX3D getJoystick() {
     return joystickDriver;
   }
-
+  
   public XboxController getXboxDriver() {
     return xboxDriver;
+  }
+  
+  public SwerveDriveSubsystem getSwerveDriveSubsystem() {
+    return swerveDriveSubsystem;
   }
   
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    joystickDriver = new JoystickX3D(0);
+    xboxDriver = new XboxController(1);
+  
+    swerveDriveSubsystem = new SwerveDriveSubsystem();
+    
+    mCmdHolonomicDrive = new cmdHolonomicDrive(swerveDriveSubsystem, joystickDriver);
+    
     // Configure the button bindings
     configureButtonBindings();
   }

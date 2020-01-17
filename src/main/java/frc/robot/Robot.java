@@ -10,6 +10,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.SwerveModule;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -108,6 +110,8 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
     // Robot.swerveDriveSubsystem.enableDrive = false;
     // Robot.testSwerveModule.enableAngle = false;
+    SwerveDriveSubsystem.enableDrive = false;
+    SwerveModule.enableAngle = false;
   }
 
   /**
@@ -115,5 +119,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    if (m_robotContainer.joystickDriver.getRawButton(2) == true) {
+    m_robotContainer.getSwerveDriveSubsystem().saveAllZeroOffsets();
+    }
   }
+
 }
