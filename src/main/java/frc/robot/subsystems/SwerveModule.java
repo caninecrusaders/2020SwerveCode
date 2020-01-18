@@ -18,11 +18,12 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
+import edu.wpi.first.wpilibj.Encoder;
 
 public class SwerveModule extends PIDSubsystem{
 
-  public double d_kP, d_kI, d_kD, d_kIz, d_kFF, d_kMaxOutput, d_kMinOutput, d_kToleranceVolts;
-  public double a_kP, a_kI, a_kD, a_kIz, a_kFF, a_kMaxOutput, a_kMinOutput, a_kToleranceVolts;
+  public double d_kP, d_kI, d_kD, d_kIz, d_kFF, d_kMaxOutput, d_kMinOutput, d_kToleranceVolts, d_kVelocityTolerance;
+  public double a_kP, a_kI, a_kD, a_kIz, a_kFF, a_kMaxOutput, a_kMinOutput, a_kToleranceVolts, a_kVelocityTolerance;
 
   public PIDController pidAngle;
   public CANPIDController pidDrive;
@@ -49,6 +50,7 @@ public class SwerveModule extends PIDSubsystem{
   double maxVoltage = 4.8;
 
   public AnalogInput mEncoder;
+  // private final Encoder mEncoder = new Encoder(channelA, channelB)
 
   
   /**
@@ -57,7 +59,7 @@ public class SwerveModule extends PIDSubsystem{
   public SwerveModule(int moduleNumber, int angleMotorID, int driveMotorID, int encoderID) {
     
     super(new PIDController(0.5, 0.0, 0.02));
-    
+    m_enabled = true;
     mModuleNumber = moduleNumber;
     getZeroOffset();
     mAngleMotor = new CANSparkMax(angleMotorID, MotorType.kBrushless);
@@ -71,7 +73,13 @@ public class SwerveModule extends PIDSubsystem{
 
   @Override
   public void periodic() {
-    super.periodic();
+    // super.periodic();
+    if (m_enabled) {
+      double currentPosition = m_controller.calculate(getMeasurement(), pidAngle.getSetpoint());
+      useOutput(currentPosition, pidAngle.getSetpoint());
+      SmartDashboard.putNumber("Current Position" + mModuleNumber, currentPosition);
+    }
+    SmartDashboard.putNumber("SetPoint" + mModuleNumber, pidAngle.getSetpoint());
     // This method will be called once per scheduler run
   }
 
@@ -79,7 +87,8 @@ public class SwerveModule extends PIDSubsystem{
 
   @Override
   public double getMeasurement() {
-    // Retyrn the process variable measurment here
+    
+    // Return the process variable measurment here
     return mEncoder.getAverageVoltage();
   }
 
@@ -91,11 +100,12 @@ public class SwerveModule extends PIDSubsystem{
     a_kMaxOutput = 0.5;
     a_kMinOutput = -0.5;
     a_kToleranceVolts = 0.01; // 5%
+    a_kVelocityTolerance = 0.0;
     // pidAngle = new PIDController(a_kP, a_kI, a_kD, mEncoder, this);
     maxVoltage = RobotController.getVoltage5V();
     pidAngle.enableContinuousInput(minVoltage, maxVoltage);
     // pidAngle.setInputRange(minVoltage, maxVoltage); // ddebug set to min and max
-    pidAngle.setTolerance(a_kToleranceVolts);
+    pidAngle.setTolerance(a_kToleranceVolts, a_kVelocityTolerance);
     // pidAngle.setAbsoluteTolerance(a_kToleranceVolts);
     // pidAngle.setContinuous(true);
     // pidAngle.setOutputRange(a_kMinOutput, a_kMaxOutput);
@@ -230,6 +240,8 @@ public class SwerveModule extends PIDSubsystem{
 
   @Override
   protected void useOutput(double output, double setpoint) {
+    SmartDashboard.putNumber("Velocity Error" + mModuleNumber, pidAngle.getVelocityError());
+
     // TODO Auto-generated method stub
     if (!enableAngle) {
       mAngleMotor.set(0);

@@ -54,8 +54,10 @@ public class RobotContainer {
     xboxDriver = new XboxController(1);
   
     swerveDriveSubsystem = new SwerveDriveSubsystem();
-    
+
     mCmdHolonomicDrive = new cmdHolonomicDrive(swerveDriveSubsystem, joystickDriver);
+    
+    swerveDriveSubsystem.setDefaultCommand(mCmdHolonomicDrive);
     
     // Configure the button bindings
     configureButtonBindings();
