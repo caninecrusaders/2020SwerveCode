@@ -17,13 +17,13 @@ import frc.robot.input.JoystickX3D;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.Robot;
 
-public class cmdHolonomicDrive extends CommandBase {
+public class CmdHolonomicDrive extends CommandBase {
   private final SwerveDriveSubsystem swerveDriveSubsystem;
   private JoystickX3D joystick;
   /**
    * Creates a new cmdHolonomicDrive.
    */
-  public cmdHolonomicDrive(SwerveDriveSubsystem driveTrain, JoystickX3D joystickIn) {
+  public CmdHolonomicDrive(SwerveDriveSubsystem driveTrain, JoystickX3D joystickIn) {
     swerveDriveSubsystem = driveTrain;
     joystick = joystickIn;
     addRequirements(driveTrain);

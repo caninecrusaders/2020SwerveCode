@@ -7,8 +7,11 @@
 
 package frc.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.GenericHID;
-import frc.robot.commands.cmdHolonomicDrive;
+import frc.robot.commands.CmdHolonomicDrive;
+import frc.robot.commands.CmdZeroYaw;
 import frc.robot.input.JoystickX3D;
 import frc.robot.input.XboxController;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -25,10 +28,11 @@ public class RobotContainer {
   
   public JoystickX3D joystickDriver;
   public XboxController xboxDriver;
+  public AHRS ahrs;
 
   private final SwerveDriveSubsystem swerveDriveSubsystem;
   
-  private final cmdHolonomicDrive mCmdHolonomicDrive;
+  private final CmdHolonomicDrive mCmdHolonomicDrive;
   
   // The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -55,14 +59,15 @@ public class RobotContainer {
   
     swerveDriveSubsystem = new SwerveDriveSubsystem();
 
-    mCmdHolonomicDrive = new cmdHolonomicDrive(swerveDriveSubsystem, joystickDriver);
+    mCmdHolonomicDrive = new CmdHolonomicDrive(swerveDriveSubsystem, joystickDriver);
     
     swerveDriveSubsystem.setDefaultCommand(mCmdHolonomicDrive);
+
     
     // Configure the button bindings
     configureButtonBindings();
   }
-
+  
   /**
    * Use this method to define your button->command mappings.  Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -70,6 +75,9 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    CmdZeroYaw mCmdZeroYaw = new CmdZeroYaw();
+  
+    joystickDriver.get5Button().whenPressed(mCmdZeroYaw);
   }
 
 

@@ -119,6 +119,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    CommandScheduler.getInstance().run();
     if (m_robotContainer.joystickDriver.getRawButton(2) == true) {
     m_robotContainer.getSwerveDriveSubsystem().saveAllZeroOffsets();
     }

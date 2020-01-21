@@ -7,33 +7,27 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.RobotContainer;
 
-public class CmdSetEncoder extends CommandBase {
-  SwerveDriveSubsystem mSwerveDriveSubsystem;
-  public boolean isPressed = false;
+public class CmdZeroYaw extends CommandBase {
+  RobotContainer mRobotContainer;
   /**
-   * Creates a new cmdSetEncoder.
+   * Creates a new cmdZeroYaw.
    */
-  public CmdSetEncoder(SwerveDriveSubsystem swerveDriveSubsystem) {
+  public CmdZeroYaw() {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(swerveDriveSubsystem);
-    mSwerveDriveSubsystem = swerveDriveSubsystem;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    mRobotContainer.ahrs.zeroYaw();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    mSwerveDriveSubsystem.saveAllZeroOffsets();
-    isPressed = true;
-    SmartDashboard.putBoolean("button", isPressed);
   }
 
   // Called once the command ends or is interrupted.
