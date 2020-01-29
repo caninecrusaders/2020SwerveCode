@@ -11,6 +11,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import frc.robot.commands.CmdHolonomicDrive;
+import frc.robot.commands.CmdXboxHolonomic;
 import frc.robot.commands.CmdZeroYaw;
 import frc.robot.input.JoystickX3D;
 import frc.robot.input.XboxController;
@@ -33,6 +34,7 @@ public class RobotContainer {
   private final SwerveDriveSubsystem swerveDriveSubsystem;
   
   private final CmdHolonomicDrive mCmdHolonomicDrive;
+  private final CmdXboxHolonomic mCmdXboxHolonomic;
   
   // The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -60,8 +62,9 @@ public class RobotContainer {
     swerveDriveSubsystem = new SwerveDriveSubsystem();
 
     mCmdHolonomicDrive = new CmdHolonomicDrive(swerveDriveSubsystem, joystickDriver);
+    mCmdXboxHolonomic = new CmdXboxHolonomic(swerveDriveSubsystem, xboxDriver);
     
-    swerveDriveSubsystem.setDefaultCommand(mCmdHolonomicDrive);
+    swerveDriveSubsystem.setDefaultCommand(mCmdXboxHolonomic);
 
     
     // Configure the button bindings
