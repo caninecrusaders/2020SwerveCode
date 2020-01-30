@@ -11,6 +11,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import frc.robot.commands.CmdHolonomicDrive;
+import frc.robot.commands.CmdTwoJoystickHolonomic;
 import frc.robot.commands.CmdXboxHolonomic;
 import frc.robot.commands.CmdZeroYaw;
 import frc.robot.input.JoystickX3D;
@@ -19,68 +20,63 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.SwerveModule;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/**
- * This class is where the bulk of the robot should be declared.  Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
- * (including subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
   
-  public JoystickX3D joystickDriver;
-  public XboxController xboxDriver;
+  public JoystickX3D joystickDriverOne;
+  public JoystickX3D joystickDriverTwo;
+  public XboxController xboxDriverOne;
+  public XboxController xboxDriverTwo;
   public AHRS ahrs;
 
   private final SwerveDriveSubsystem swerveDriveSubsystem;
-  
   private final CmdHolonomicDrive mCmdHolonomicDrive;
   private final CmdXboxHolonomic mCmdXboxHolonomic;
+  private final CmdTwoJoystickHolonomic mCmdTwoJoystickHolonomic;
   
-  // The robot's subsystems and commands are defined here...
-  // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
-  
-  public JoystickX3D getJoystick() {
-    return joystickDriver;
+  public JoystickX3D getJoystickOne() {
+    return joystickDriverOne;
+  }
+
+  public JoystickX3D getJoystickTwo() {
+    return joystickDriverTwo;
   }
   
-  public XboxController getXboxDriver() {
-    return xboxDriver;
+  public XboxController getXboxDriverOne() {
+    return xboxDriverOne;
+  }
+
+  public XboxController getXboxDriverTwo() {
+    return xboxDriverTwo;
   }
   
   public SwerveDriveSubsystem getSwerveDriveSubsystem() {
     return swerveDriveSubsystem;
   }
   
-  /**
-   * The container for the robot.  Contains subsystems, OI devices, and commands.
-   */
   public RobotContainer() {
-    joystickDriver = new JoystickX3D(0);
-    xboxDriver = new XboxController(1);
+    joystickDriverOne = new JoystickX3D(0);
+    joystickDriverTwo = new JoystickX3D(1);
+    xboxDriverOne = new XboxController(2);
+    xboxDriverTwo = new XboxController(3);
   
     swerveDriveSubsystem = new SwerveDriveSubsystem();
 
-    mCmdHolonomicDrive = new CmdHolonomicDrive(swerveDriveSubsystem, joystickDriver);
-    mCmdXboxHolonomic = new CmdXboxHolonomic(swerveDriveSubsystem, xboxDriver);
+    mCmdHolonomicDrive = new CmdHolonomicDrive(swerveDriveSubsystem, joystickDriverOne);
+    mCmdXboxHolonomic = new CmdXboxHolonomic(swerveDriveSubsystem, xboxDriverOne);
+    mCmdTwoJoystickHolonomic = new CmdTwoJoystickHolonomic(swerveDriveSubsystem, joystickDriverOne, joystickDriverTwo);
     
-    swerveDriveSubsystem.setDefaultCommand(mCmdXboxHolonomic);
-
     
-    // Configure the button bindings
+    // swerveDriveSubsystem.setDefaultCommand(mCmdXboxHolonomic);
+    // swerveDriveSubsystem.setDefaultCommand(mCmdHolonomicDrive);
+    swerveDriveSubsystem.setDefaultCommand(mCmdTwoJoystickHolonomic);
+    
     configureButtonBindings();
   }
   
-  /**
-   * Use this method to define your button->command mappings.  Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a
-   * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
   private void configureButtonBindings() {
     CmdZeroYaw mCmdZeroYaw = new CmdZeroYaw();
   
-    joystickDriver.get5Button().whenPressed(mCmdZeroYaw);
+    joystickDriverOne.get5Button().whenPressed(mCmdZeroYaw);
   }
 
 
