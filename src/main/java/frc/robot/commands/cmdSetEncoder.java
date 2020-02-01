@@ -33,7 +33,6 @@ public class CmdSetEncoder extends CommandBase {
   public void execute() {
     mSwerveDriveSubsystem.saveAllZeroOffsets();
     isPressed = true;
-    SmartDashboard.putBoolean("button", isPressed);
   }
 
   // Called once the command ends or is interrupted.

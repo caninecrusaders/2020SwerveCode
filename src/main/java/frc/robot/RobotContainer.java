@@ -67,8 +67,8 @@ public class RobotContainer {
     
     
     // swerveDriveSubsystem.setDefaultCommand(mCmdXboxHolonomic);
-    // swerveDriveSubsystem.setDefaultCommand(mCmdHolonomicDrive);
-    swerveDriveSubsystem.setDefaultCommand(mCmdTwoJoystickHolonomic);
+    swerveDriveSubsystem.setDefaultCommand(mCmdHolonomicDrive);
+    // swerveDriveSubsystem.setDefaultCommand(mCmdTwoJoystickHolonomic);
     
     configureButtonBindings();
   }

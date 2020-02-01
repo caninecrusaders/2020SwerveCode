@@ -41,13 +41,19 @@ public class SwerveModule extends PIDSubsystem{
   private boolean angleMotorJam = false;
   private long mStallTimeBegin = Long.MAX_VALUE;
 
-
   private boolean driveInverted = false;
   private double mLastError = 0;
   private double lastTargetAngle = 0;
   double angleSpeed;
   double minVoltage = 0.0;
   double maxVoltage = 4.8;
+  double maxOut = 0;
+
+  double driveHardAmpLimit = 50;
+  int driveSoftAmpLimit = 40;
+
+  double angleHardAmpLimit = 40;
+  int angleSoftAmpLimit = 30;
 
   public AnalogInput mEncoder;
   // private final Encoder mEncoder = new Encoder(channelA, channelB)
@@ -67,8 +73,8 @@ public class SwerveModule extends PIDSubsystem{
     mEncoder = new AnalogInput(encoderID);
     pidAngle = this.getController();
     pidDrive = mDriveMotor.getPIDController();
+    driveMotorPIDController();
     angleMotorPIDController();
-
   }
 
   @Override
@@ -77,13 +83,10 @@ public class SwerveModule extends PIDSubsystem{
     if (m_enabled) {
       double currentPosition = m_controller.calculate(getMeasurement(), pidAngle.getSetpoint());
       useOutput(currentPosition, pidAngle.getSetpoint());
-      SmartDashboard.putNumber("Current Position" + mModuleNumber, currentPosition);
+      // SmartDashboard.putNumber("Current Position" + mModuleNumber, currentPosition);
     }
-    SmartDashboard.putNumber("SetPoint" + mModuleNumber, pidAngle.getSetpoint());
-    // This method will be called once per scheduler run
+    // SmartDashboard.putNumber("SetPoint" + mModuleNumber, pidAngle.getSetpoint());
   }
-
-  
 
   @Override
   public double getMeasurement() {
@@ -92,39 +95,33 @@ public class SwerveModule extends PIDSubsystem{
     return mEncoder.getAverageVoltage();
   }
 
+  public void driveMotorPIDController() {
+    SmartDashboard.putNumber("amp out" + mModuleNumber, 0);
+    d_kMinOutput = -0.5;
+    d_kMaxOutput = 0.5;
+    pidDrive.setOutputRange(d_kMinOutput, d_kMaxOutput);
+    mDriveMotor.setSmartCurrentLimit(driveSoftAmpLimit);
+    mDriveMotor.setSecondaryCurrentLimit(driveHardAmpLimit);
+  }
+
   public void angleMotorPIDController() {
     
-   
-    // a_kIz = 0.01;
-    // a_kFF = 0;
     a_kMaxOutput = 0.5;
     a_kMinOutput = -0.5;
     a_kToleranceVolts = 0.01; // 5%
     a_kVelocityTolerance = 0.0;
-    // pidAngle = new PIDController(a_kP, a_kI, a_kD, mEncoder, this);
     maxVoltage = RobotController.getVoltage5V();
     pidAngle.enableContinuousInput(minVoltage, maxVoltage);
-    // pidAngle.setInputRange(minVoltage, maxVoltage); // ddebug set to min and max
     pidAngle.setTolerance(a_kToleranceVolts, a_kVelocityTolerance);
-    // pidAngle.setAbsoluteTolerance(a_kToleranceVolts);
-    // pidAngle.setContinuous(true);
-    // pidAngle.setOutputRange(a_kMinOutput, a_kMaxOutput);
-
-    SmartDashboard.putNumber("P - angle", a_kP);
-    SmartDashboard.putNumber("I - angle", a_kI);
-    SmartDashboard.putNumber("D - angle", a_kD);
-    SmartDashboard.putNumber("I - angle", a_kIz);
-    SmartDashboard.putNumber("Max Angle Output", a_kMaxOutput);
-    SmartDashboard.putNumber("Min Angle Output", a_kMinOutput);
-    // SmartDashboard.putNumber("Set Angle Inches", 0);
-    // pidAngle.enable();
     pidAngle.setSetpoint(0);
+
+    mAngleMotor.setSmartCurrentLimit(angleSoftAmpLimit);
+    mAngleMotor.setSecondaryCurrentLimit(angleHardAmpLimit);
   }
 
   public void getZeroOffset() {
     String key = String.format("ZeroOffset%d", getModuleNumber());
     mZeroOffset = Preferences.getInstance().getDouble(key, 0);
-    SmartDashboard.putNumber(key, mZeroOffset);
   }
 
   public int getModuleNumber() {
@@ -188,11 +185,11 @@ public class SwerveModule extends PIDSubsystem{
     }
 
     targetAngle += currentAngle - currentAngleMod;
-    SmartDashboard.putNumber("targetAngle" + mModuleNumber, targetAngle);
+    // SmartDashboard.putNumber("targetAngle" + mModuleNumber, targetAngle);
 
     // targetAngle *= 1024.0 / 360.0;
     targetAngle = angleToVoltage(targetAngle);
-    SmartDashboard.putNumber("targetVoltage" + mModuleNumber, targetAngle);
+    // SmartDashboard.putNumber("targetVoltage" + mModuleNumber, targetAngle);
 
     pidAngle.setSetpoint(targetAngle); // ddebug set back to targetAngle
   }
@@ -223,7 +220,7 @@ public class SwerveModule extends PIDSubsystem{
   public void resetMotor() {
     angleMotorJam = false;
     mStallTimeBegin = Long.MAX_VALUE;
-    SmartDashboard.putBoolean("Motor Jammed" + mModuleNumber, angleMotorJam);
+    // SmartDashboard.putBoolean("Motor Jammed" + mModuleNumber, angleMotorJam);
   }
 
   public void setMotionConstraints(double maxAcceleration, double maxVelocity) {
@@ -240,7 +237,7 @@ public class SwerveModule extends PIDSubsystem{
 
   @Override
   protected void useOutput(double output, double setpoint) {
-    SmartDashboard.putNumber("Velocity Error" + mModuleNumber, pidAngle.getVelocityError());
+    // SmartDashboard.putNumber("Velocity Error" + mModuleNumber, pidAngle.getVelocityError());
 
     // TODO Auto-generated method stub
     if (!enableAngle) {
@@ -253,7 +250,12 @@ public class SwerveModule extends PIDSubsystem{
       mAngleMotor.set(0);
     }
 
-    SmartDashboard.putNumber("Output" + mModuleNumber, output);
+    // SmartDashboard.putNumber("Output" + mModuleNumber, output);
+    double ampOut = mDriveMotor.getOutputCurrent();
+    if(ampOut > maxOut) {
+      maxOut = ampOut;
+    }
+    SmartDashboard.putNumber("amp out" + mModuleNumber, maxOut);
   }
 
 

@@ -55,9 +55,9 @@ public class CmdHolonomicDrive extends CommandBase {
     strafe = deadband(strafe);
     rotation = deadband(rotation);
 
-    SmartDashboard.putNumber("Forward", forward);
-    SmartDashboard.putNumber("Strafe", strafe);
-    SmartDashboard.putNumber("Rotation", rotation);
+    // SmartDashboard.putNumber("Forward", forward);
+    // SmartDashboard.putNumber("Strafe", strafe);
+    // SmartDashboard.putNumber("Rotation", rotation);
 
     swerveDriveSubsystem.holonomicDrive(forward, strafe, rotation, true);
   }

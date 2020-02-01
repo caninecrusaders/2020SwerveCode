@@ -9,9 +9,11 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import edu.wpi.first.wpilibj.SerialPort;
 
 public class SwerveDriveSubsystem extends SubsystemBase {
   public static final double WHEELBASE = 18; 
@@ -31,7 +33,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private SwerveModule[] mSwerveModules;
 
-  private AHRS mNavX = new AHRS(SPI.Port.kMXP, (byte) 200);
+  // private AHRS mNavX = new AHRS(SPI.Port.kMXP, (byte) 200);
+  private AHRS mNavX = new AHRS(SerialPort.Port.kUSB1); //micro
 
   public SwerveDriveSubsystem() {
     zeroGyro();
@@ -125,10 +128,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     for (int i = 0; i < 4; i++) { // ddebug
       if (Math.abs(forward) > 0.05 || Math.abs(strafe) > 0.05 || Math.abs(rotation) > 0.05) {
         mSwerveModules[i].setTargetAngle(angles[i] + 180);
-        SmartDashboard.putNumber("Sending Angle" + mSwerveModules[i].getModuleNumber(), angles[i] + 180);
+        // SmartDashboard.putNumber("Sending Angle" + mSwerveModules[i].getModuleNumber(), angles[i] + 180);
       } else {
         mSwerveModules[i].setTargetAngle(mSwerveModules[i].getTargetAngle());
-        SmartDashboard.putNumber("Sending Angle" + mSwerveModules[i].getModuleNumber(), -999);
+        // SmartDashboard.putNumber("Sending Angle" + mSwerveModules[i].getModuleNumber(), -999);
 
       }
       if (enableDrive) {
